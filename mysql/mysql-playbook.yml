@@ -1,0 +1,72 @@
+---
+- name: Install and config MySQL @ localhost, quadzero
+  hosts: mysql_servers
+  become: yes
+  vars_files:
+    - mysql_secrets.yml
+  vars:
+    mysql_root_password:
+    mysql_bind_address: "0.0.0.0"
+    mysql_databases:
+        - name: "test_db"
+    mysql_users:
+      - name: "Parham"
+        password: "{{ mysql_user_password }}"
+        priv: "test_db.*:ALL"
+  tasks:
+    - name: apt cache update
+      apt:
+        update_cache: yes
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: check if service is ok
+      service:
+        name: mysql.service
+        state: started
+        enabled: yes
+      tags: check_serivce
+
+    - name: install pymysql
+      pip:
+        name: pymysql
+        state: present
+      tags: pip
+
+    - name: Set MySQL root password
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        check_implicit_admin: no  # Disable implicit admin check
+        login_user: root
+        login_password: "{{ mysql_root_password }}"  # Use the new password
+        state: present
+        
+    - name: update config file
+      template:
+        src: my.cnf.j2
+        dest: /etc/mysql/my.cnf
+      notify: restart mysql service
+
+    - name: create test db
+      mysql_db:
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ mysql_databases }}"
+
+    - name: create users
+      mysql_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        priv: "{{ item.priv }}"
+        state: present
+      loop: "{{ mysql_users }}"
+
+  handlers:
+    - name: restart mysql service
+      service:
+        name: mysql
+        state: present
