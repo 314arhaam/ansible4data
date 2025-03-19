@@ -1,0 +1,11 @@
+---
+- name: sandbox!
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: test echo
+      shell: echo "This is ECHO" > test2.txt
+    - name: test msg using debug moudule
+      debug:
+        msg: "This is a MSG"
