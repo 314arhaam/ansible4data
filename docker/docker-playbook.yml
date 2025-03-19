@@ -1,0 +1,14 @@
+---
+- name: set up docker
+  hosts: localhost
+  become: yes
+  tasks:
+  - name: Install snap
+    apt:
+      name: snap
+      state: present
+  - name: Install docker
+    snap:
+      name: docker
+      state: present
+
