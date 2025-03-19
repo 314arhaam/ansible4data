@@ -11,4 +11,3 @@
     snap:
       name: docker
       state: present
-
