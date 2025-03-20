@@ -23,3 +23,5 @@
     - name:
       debug:
         msg: "{{ my_var }}"
+    - name: store to file
+      shell: echo "{{ date_cmd.stdout }}" > myfile.txt
