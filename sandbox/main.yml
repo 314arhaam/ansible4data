@@ -4,8 +4,27 @@
   become: yes
 
   tasks:
+    - name: a command
+      command: date
+      register: date_cmd
+    - name:
+      set_fact:
+        my_var: "Hello set fact var {{ date_cmd.stdout }}"
     - name: test echo
       shell: echo "This is ECHO" > test2.txt
     - name: test msg using debug moudule
       debug:
         msg: "This is a MSG"
+    - name: export var
+      shell: export SSAS="HELLO"
+    - name: print
+      command: echo "The VAR {{ lookup('env', 'SSAS') }} and {{ my_var }}"
+      register: echo_out
+    - name:
+      debug:
+        msg: "{{ my_var }}"
+    - name: store to file
+      shell: echo "{{ date_cmd.stdout }}" > myfile.txt
+    - name:
+      shell: python3 code.py 1 2
+      tags: code_check
