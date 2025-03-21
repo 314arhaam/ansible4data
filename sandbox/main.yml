@@ -25,3 +25,6 @@
         msg: "{{ my_var }}"
     - name: store to file
       shell: echo "{{ date_cmd.stdout }}" > myfile.txt
+    - name:
+      shell: python3 code.py 1 2
+      tags: code_check
