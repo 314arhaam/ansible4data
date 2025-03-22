@@ -3,7 +3,7 @@
   hosts: mysql_servers
   become: yes
   vars_files:
-    - mysql_secrets.yml
+    - vault/mysql_secrets.yml
   vars:
     mysql_bind_address: "0.0.0.0"
     mysql_databases:
