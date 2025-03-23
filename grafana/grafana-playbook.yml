@@ -1,6 +1,9 @@
+# note check dir existence
 - name:
   hosts: master-monitor
   become: yes
+  vars:
+    PROMETHEUS_INSTALL_PATH: "/opt/prometheus"
   tasks:
     - name:
       snap:
@@ -13,3 +16,26 @@
         state: started
         enabled: yes
       tags: snap-service
+
+    - name: prometheus
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.53.4/prometheus-2.53.4.linux-amd64.tar.gz"
+        dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: dl
+
+    - name: unzip
+      unarchive:
+        src: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64.tar.gz"
+        dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: unzip
+
+    # - name: config
+
+    # - name: start prometheus
+      # shell: 
