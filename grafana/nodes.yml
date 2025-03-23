@@ -1,0 +1,32 @@
+- name:
+  hosts: observed-nodes
+  vars:
+    NODE_EXPORTER_PATH: "/opt/node-exporter"
+  tasks:
+    - name: check dir
+      file:
+        path: "{{ NODE_EXPORTER_PATH }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0770"
+      tags: dir_check
+    
+    - name: download node-expoter
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-amd64.tar.gz"
+        dest: "{{ NODE_EXPORTER_PATH }}"
+        user: root
+        group: root
+        mode: "0770"
+
+    - name: unzip node-exporter
+      unarchive:
+        src: "{{ NODE_EXPORTER_PATH }}"
+        dest: "{{ NODE_EXPORTER_PATH }}"
+        user: root
+        group: root
+        mode: "0770"
+
+    - name: run node-exporter
+      shell: "{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0/node_exporter"
