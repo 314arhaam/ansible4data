@@ -1,0 +1,15 @@
+- name:
+  hosts: master-monitor
+  become: yes
+  tasks:
+    - name:
+      snap:
+        name: grafana
+      tags: snap-install
+
+    - name:
+      snap:
+        name: grafana
+        state: started
+        enabled: yes
+      tags: snap-service
