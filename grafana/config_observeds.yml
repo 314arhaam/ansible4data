@@ -3,6 +3,7 @@
   become: yes
   vars:
     NODE_EXPORTER_PATH: "/opt/node_exporter"
+    NODE_EXPORTER_EXEC_PATH: "{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0.linux-amd64/node_exporter"
   tasks:
     - name: check dir
       file:
@@ -31,6 +32,24 @@
         remote_src: yes
       tags: unzip
 
-    - name: run node-exporter as a service
-      shell: "./{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0/node_exporter"
-      tags: run
+    - name: config systemd
+      template: 
+        src: "templates/node-exporter.service.j2"
+        dest: "/etc/systemd/system/node-exporter.service"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: copy-config
+
+    - name: systemd
+      systemd:
+        name: node-exporter.service
+        daemon_reload: yes
+      tags: systemd
+
+    - name: systemd
+      systemd:
+        name: node-exporter.service
+        state: started
+        enabled: yes
+      tags: systemd

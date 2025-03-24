@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=root
 Group=root
-ExecStart="{{ NODE_EXPORTER_PATH }}"
+ExecStart="{{ NODE_EXPORTER_EXEC_PATH }}"
 
 [Install]
 WantedBy=multi-user.target
