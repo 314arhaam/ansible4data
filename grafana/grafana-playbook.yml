@@ -1,5 +1,5 @@
 - name:
-  hosts: master-monitor
+  hosts: hq_host
   become: yes
   vars:
     PROMETHEUS_INSTALL_PATH: "/opt/prometheus"
