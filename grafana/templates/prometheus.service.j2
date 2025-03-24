@@ -5,8 +5,9 @@ After=network.target
 [Service]
 User=root
 Group=root
-ExecStart=/usr/local/bin/prometheus \
+ExecStart="{{ PROMETHEUS_EXEC_PATH }}" \
   --config.file="{{ PROMETHEUS_CONFIG_PATH }}" \
+  --web.listen-address=0.0.0.0:9100 \
   #--storage.tsdb.path=/var/lib/prometheus/ \
   #--web.console.templates=/etc/prometheus/consoles \
   #--web.console.libraries=/etc/prometheus/console_libraries

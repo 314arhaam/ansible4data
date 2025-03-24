@@ -3,6 +3,8 @@
   become: yes
   vars:
     PROMETHEUS_INSTALL_PATH: "/opt/prometheus"
+    PROMETHEUS_CONFIG_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prom_config.yml"
+    PROMETHEUS_EXEC_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prometheus"
   tasks:
     - name:
       snap:
@@ -12,8 +14,7 @@
     - name:
       snap:
         name: grafana
-        state: started
-        enabled: yes
+        state: present
       tags: snap-service
 
     - name: create if not exists
@@ -42,7 +43,33 @@
         mode: "0770"
       tags: unzip
 
-    # - name: config
+    - name: prom config
+      copy:
+        src: "templates/prom_config.yml"
+        dest: "{{ PROMETHEUS_CONFIG_PATH }}"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: copy-prom-conf
 
-    # - name: start prometheus
-      # shell: 
+    - name: config systemd
+      template: 
+        src: "templates/prometheus.service.j2"
+        dest: "/etc/systemd/system/prometheus.service"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: copy-config
+
+    - name: systemd
+      systemd:
+        name: prometheus.service
+        daemon_reload: yes
+      tags: systemd
+
+    - name: systemd
+      systemd:
+        name: prometheus.service
+        state: started
+        enabled: yes
+      tags: systemd
