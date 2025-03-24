@@ -31,6 +31,6 @@
         remote_src: yes
       tags: unzip
 
-    - name: run node-exporter
+    - name: run node-exporter as a service
       shell: "./{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0/node_exporter"
       tags: run
