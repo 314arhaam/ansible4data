@@ -6,35 +6,36 @@
     PROMETHEUS_CONFIG_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prom_config.yml"
     PROMETHEUS_EXEC_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prometheus"
   tasks:
-    - name:
+    - name: install grafana with snap
       snap:
         name: grafana
       tags: snap-install
 
-    - name:
+    - name: enable grafana snap service
       snap:
         name: grafana
         state: present
       tags: snap-service
 
-    - name: create if not exists
+    - name: create directory to dl prometheus
       file:
         path: "{{ PROMETHEUS_INSTALL_PATH }}"
         state: directory
         owner: root
         group: root
         mode: "0770"
+      tags: create-dir
       
-    - name: prometheus
+    - name: download prometheus
       get_url:
         url: "https://github.com/prometheus/prometheus/releases/download/v2.53.4/prometheus-2.53.4.linux-amd64.tar.gz"
         dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
         owner: root
         group: root
         mode: "0770"
-      tags: dl
+      tags: download
 
-    - name: unzip
+    - name: unzip prometheus
       unarchive:
         src: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64.tar.gz"
         dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
@@ -43,7 +44,7 @@
         mode: "0770"
       tags: unzip
 
-    - name: prom config
+    - name: copy prometheus config
       copy:
         src: "templates/prom_config.yml"
         dest: "{{ PROMETHEUS_CONFIG_PATH }}"
@@ -52,22 +53,22 @@
         mode: "0770"
       tags: copy-prom-conf
 
-    - name: config systemd
+    - name: copy prometheus systemd service file
       template: 
         src: "templates/prometheus.service.j2"
         dest: "/etc/systemd/system/prometheus.service"
         owner: root
         group: root
         mode: "0770"
-      tags: copy-config
+      tags: systemd
 
-    - name: systemd
+    - name: systemd daemon-reload
       systemd:
         name: prometheus.service
         daemon_reload: yes
       tags: systemd
 
-    - name: systemd
+    - name: enable prometheus systemd service
       systemd:
         name: prometheus.service
         state: started

@@ -1,0 +1,17 @@
+all:
+  children:
+    hq_host:
+      hosts:
+        server0:
+          ansible_connection: 
+          ansible_user: 
+    observed_hosts:
+      hosts:
+        server1: 
+          ansible_host: 
+          ansible_user: 
+          ansible_ssh_private_key_file: 
+        server2:
+          ansible_host: 
+          ansible_user: 
+          ansible_ssh_private_key_file: 

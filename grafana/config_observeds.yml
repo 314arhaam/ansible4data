@@ -1,18 +1,18 @@
-- name:
-  hosts: observed_hosts
+- name: Install Node Exporter on all hosts
+  hosts: all
   become: yes
   vars:
     NODE_EXPORTER_PATH: "/opt/node_exporter"
     NODE_EXPORTER_EXEC_PATH: "{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0.linux-amd64/node_exporter"
   tasks:
-    - name: check dir
+    - name: create the desired path to download files
       file:
         path: "{{ NODE_EXPORTER_PATH }}"
         state: directory
         owner: root
         group: root
         mode: "0770"
-      tags: dir_check
+      tags: dir-check
     
     - name: download node-expoter
       get_url:
@@ -21,6 +21,7 @@
         owner: root
         group: root
         mode: "0770"
+      tags: download
 
     - name: unzip node-exporter
       unarchive:
@@ -30,24 +31,24 @@
         group: root
         mode: "0770"
         remote_src: yes
-      tags: unzip
+      tags: unzip-files
 
-    - name: config systemd
+    - name: copy systemd service file to /etc/systemd/system/
       template: 
         src: "templates/node-exporter.service.j2"
         dest: "/etc/systemd/system/node-exporter.service"
         owner: root
         group: root
         mode: "0770"
-      tags: copy-config
+      tags: systemd
 
-    - name: systemd
+    - name: systemd daemon-reload
       systemd:
         name: node-exporter.service
         daemon_reload: yes
       tags: systemd
 
-    - name: systemd
+    - name: systemd-service start
       systemd:
         name: node-exporter.service
         state: started
