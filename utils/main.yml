@@ -1,0 +1,11 @@
+name: utility tools
+  hosts: all
+  become: yes
+  tasks:
+    - name: install snap
+      apt:
+        name: snap
+    - name: install tree
+      apt:
+        name: tree
+    
