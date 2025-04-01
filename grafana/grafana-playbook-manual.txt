@@ -1,0 +1,15 @@
+
+playbook: grafana-playbook.yml
+
+  play #1 (hq_host): install grafana and prometheus on the main host a.k.a hq_host	TAGS: []
+    tasks:
+      install grafana with snap	TAGS: [snap-install]
+      enable grafana snap service	TAGS: [snap-service]
+      create directory to dl prometheus @ PROMETHEUS_INSTALL_PATH	TAGS: [create-dir]
+      download prometheus @ PROMETHEUS_INSTALL_PATH	TAGS: [download]
+      unzip prometheus	TAGS: [unzip]
+      copy prometheus config from PROMETHEUS_CONFIG_PATH	TAGS: [copy-prom-conf]
+      copy prometheus systemd service file	TAGS: [systemd]
+      systemd daemon-reload	TAGS: [systemd]
+      enable prometheus systemd service	TAGS: [systemd]
+      TASK TAGS: [copy-prom-conf, create-dir, download, snap-install, snap-service, systemd, unzip]
