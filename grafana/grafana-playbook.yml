@@ -1,4 +1,4 @@
-- name:
+- name: install grafana and prometheus on the main host a.k.a hq_host
   hosts: hq_host
   become: yes
   vars:
@@ -17,7 +17,7 @@
         state: present
       tags: snap-service
 
-    - name: create directory to dl prometheus
+    - name: create directory to dl prometheus @ PROMETHEUS_INSTALL_PATH
       file:
         path: "{{ PROMETHEUS_INSTALL_PATH }}"
         state: directory
@@ -26,7 +26,7 @@
         mode: "0770"
       tags: create-dir
       
-    - name: download prometheus
+    - name: download prometheus @ PROMETHEUS_INSTALL_PATH
       get_url:
         url: "https://github.com/prometheus/prometheus/releases/download/v2.53.4/prometheus-2.53.4.linux-amd64.tar.gz"
         dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
@@ -44,7 +44,7 @@
         mode: "0770"
       tags: unzip
 
-    - name: copy prometheus config
+    - name: copy prometheus config from PROMETHEUS_CONFIG_PATH
       copy:
         src: "templates/prom_config.yml"
         dest: "{{ PROMETHEUS_CONFIG_PATH }}"
