@@ -1,0 +1,135 @@
+- name: install grafana and prometheus on the main host a.k.a hq_host
+  hosts: hq_host
+  become: yes
+  vars:
+    PROMETHEUS_INSTALL_PATH: "/opt/prometheus"
+    PROMETHEUS_CONFIG_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prom_config.yml"
+    PROMETHEUS_EXEC_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prometheus"
+  tags: config-hq-host
+  tasks:
+    - name: install grafana with snap
+      snap:
+        name: grafana
+      tags: snap-install
+
+    - name: enable grafana snap service
+      snap:
+        name: grafana
+        state: present
+      tags: snap-service
+
+    - name: create directory to dl prometheus @ PROMETHEUS_INSTALL_PATH
+      file:
+        path: "{{ PROMETHEUS_INSTALL_PATH }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0770"
+      tags: create-dir
+      
+    - name: download prometheus @ PROMETHEUS_INSTALL_PATH
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.53.4/prometheus-2.53.4.linux-amd64.tar.gz"
+        dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: download
+
+    - name: unzip prometheus
+      unarchive:
+        src: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64.tar.gz"
+        dest: "{{ PROMETHEUS_INSTALL_PATH }}/"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: unzip
+
+    - name: copy prometheus config from PROMETHEUS_CONFIG_PATH
+      copy:
+        src: "templates/prom_config.yml"
+        dest: "{{ PROMETHEUS_CONFIG_PATH }}"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: copy-prom-conf
+
+    - name: copy prometheus systemd service file
+      template: 
+        src: "templates/prometheus.service.j2"
+        dest: "/etc/systemd/system/prometheus.service"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: systemd
+
+    - name: systemd daemon-reload
+      systemd:
+        name: prometheus.service
+        daemon_reload: yes
+      tags: systemd
+
+    - name: enable prometheus systemd service
+      systemd:
+        name: prometheus.service
+        state: started
+        enabled: yes
+      tags: systemd
+
+- name: Install Node Exporter on all hosts
+  hosts: all
+  become: yes
+  vars:
+    NODE_EXPORTER_PATH: "/opt/node_exporter"
+    NODE_EXPORTER_EXEC_PATH: "{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0.linux-amd64/node_exporter"
+  tags: node-exporter-install-all
+  tasks:
+    - name: create the desired path to download files
+      file:
+        path: "{{ NODE_EXPORTER_PATH }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0770"
+      tags: dir-check
+    
+    - name: download node-expoter
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-amd64.tar.gz"
+        dest: "{{ NODE_EXPORTER_PATH }}"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: download
+
+    - name: unzip node-exporter
+      unarchive:
+        src: "{{ NODE_EXPORTER_PATH }}/node_exporter-1.9.0.linux-amd64.tar.gz"
+        dest: "{{ NODE_EXPORTER_PATH }}"
+        owner: root
+        group: root
+        mode: "0770"
+        remote_src: yes
+      tags: unzip-files
+
+    - name: copy systemd service file to /etc/systemd/system/
+      template: 
+        src: "templates/node-exporter.service.j2"
+        dest: "/etc/systemd/system/node-exporter.service"
+        owner: root
+        group: root
+        mode: "0770"
+      tags: systemd
+
+    - name: systemd daemon-reload
+      systemd:
+        name: node-exporter.service
+        daemon_reload: yes
+      tags: systemd
+
+    - name: systemd-service start
+      systemd:
+        name: node-exporter.service
+        state: started
+        enabled: yes
+      tags: systemd
