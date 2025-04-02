@@ -77,6 +77,11 @@ playbook: grafana-main.yml
 |`NODE_EXPORTER_PATH`|`play #2`|Path to download and install Node Exporter|
 |`NODE_EXPORTER_EXEC_PATH`|`play #2`|Path of Node Exporter executable|
 
+## Dashboard
+A minimal dashboard is also available in the path `dashboard/dashboard.json`  
+
+![](https://raw.githubusercontent.com/314arhaam/ansible4data/refs/heads/main/grafana/dashboard/grafana(1).png)
+
 ## TODO
 
 1. Add MySQL as the backend db for Grafana
