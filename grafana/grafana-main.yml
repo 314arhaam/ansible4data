@@ -7,6 +7,11 @@
     PROMETHEUS_EXEC_PATH: "{{ PROMETHEUS_INSTALL_PATH }}/prometheus-2.53.4.linux-amd64/prometheus"
   tags: config-hq-host
   tasks:
+    - name: install snap
+      apt:
+        name: snap
+      tags: apt-snap
+      
     - name: install grafana with snap
       snap:
         name: grafana
